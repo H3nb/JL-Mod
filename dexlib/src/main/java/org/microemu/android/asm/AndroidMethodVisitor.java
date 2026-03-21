@@ -67,6 +67,9 @@ public class AndroidMethodVisitor extends MethodVisitor {
 					mv.visitLdcInsn(1L);
 					mv.visitMethodInsn(opcode, owner, "sleep", "(J)V", false);
 					return;
+				} else if (opcode == INVOKESTATIC && name.equals("sleep") && desc.equals("(J)V")) {
+					mv.visitMethodInsn(opcode, "javax/microedition/util/Time", name, desc, itf);
+					return;
 				}
 				break;
 			case "java/lang/String":
@@ -120,9 +123,14 @@ public class AndroidMethodVisitor extends MethodVisitor {
 				}
 				break;
 			case "java/lang/System":
-				if (opcode == INVOKESTATIC && name.equals("getProperty")) {
-					mv.visitMethodInsn(opcode, "javax/microedition/shell/MidletSystem", name, desc, itf);
-					return;
+				if (opcode == INVOKESTATIC) {
+					if (name.equals("getProperty")) {
+						mv.visitMethodInsn(opcode, "javax/microedition/shell/MidletSystem", name, desc, itf);
+						return;
+					} else if (name.equals("currentTimeMillis") || name.equals("nanoTime")) {
+						mv.visitMethodInsn(opcode, "javax/microedition/util/Time", name, desc, itf);
+						return;
+					}
 				}
 				break;
 			case "java/util/Timer":

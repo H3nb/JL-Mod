@@ -38,6 +38,7 @@ import javax.microedition.util.ContextHolder;
 import ru.playsoftware.j2meloader.R;
 
 public class Config {
+	public static final int DEX_PATCHER_VERSION = 1;
 	public static final String APPS_DB_NAME = "/J2ME-apps.db";
 	public static final String DEX_OPT_CACHE_DIR = "dex_opt";
 	public static final String MIDLET_CONFIGS_DIR = "/configs/";

@@ -205,5 +205,7 @@
     <string name="unlimited">tanpa batas</string>
     <string name="version">Versi: </string>
     <string name="warn_install_from_net">Berkas akan diunduh dari internet</string>
+    <string name="reinstall_needed_title">Disarankan pasang ulang</string>
+    <string name="reinstall_needed_message">Aplikasi/game ini dipasang dengan emulator versi lama. Untuk mengaktifkan fitur Pengali Kecepatan, Anda perlu memasang ulang. Data permainan tidak akan dihapus.\n\nPasang ulang sekarang?</string>
     <string name="warning">Peringatan</string>
 </resources>

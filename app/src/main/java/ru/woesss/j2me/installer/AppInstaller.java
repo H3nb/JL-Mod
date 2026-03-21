@@ -290,6 +290,7 @@ public class AppInstaller {
 				iconFile.delete();
 			}
 		}
+		newDesc.getAttrs().put("JL-Mod-Dex-Version", String.valueOf(Config.DEX_PATCHER_VERSION));
 		newDesc.writeTo(new File(tmpDir, Config.MIDLET_MANIFEST_FILE));
 		FileUtils.deleteDirectory(targetDir);
 		if (!tmpDir.renameTo(targetDir)) {

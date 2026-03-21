@@ -39,10 +39,10 @@ class AppsListAdapter extends ListAdapter<AppItem, AppsListAdapter.AppViewHolder
 	static final int LAYOUT_TYPE_LIST = 0;
 	static final int LAYOUT_TYPE_GRID = 1;
 
-	private final View.OnCreateContextMenuListener contextMenuListener;
+	private final AppsListFragment fragment;
 	private int layout = LAYOUT_TYPE_LIST;
 
-	AppsListAdapter(View.OnCreateContextMenuListener contextMenuListener) {
+	AppsListAdapter(AppsListFragment fragment) {
 		super(new DiffUtil.ItemCallback<>() {
 			@Override
 			public boolean areItemsTheSame(@NonNull AppItem oldItem, @NonNull AppItem newItem) {
@@ -55,7 +55,7 @@ class AppsListAdapter extends ListAdapter<AppItem, AppsListAdapter.AppViewHolder
 						oldItem.getVersion().equals(newItem.getVersion());
 			}
 		});
-		this.contextMenuListener = contextMenuListener;
+		this.fragment = fragment;
 	}
 
 	@Override
@@ -69,10 +69,10 @@ class AppsListAdapter extends ListAdapter<AppItem, AppsListAdapter.AppViewHolder
 		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 		if (viewType == LAYOUT_TYPE_GRID) {
 			ListRowGridJarBinding binding = ListRowGridJarBinding.inflate(inflater, parent, false);
-			return new AppViewHolder(binding, contextMenuListener);
+			return new AppViewHolder(binding, fragment);
 		} else {
 			ListRowJarBinding binding = ListRowJarBinding.inflate(inflater, parent, false);
-			return new AppListViewHolder(binding, contextMenuListener);
+			return new AppListViewHolder(binding, fragment);
 		}
 	}
 
@@ -89,14 +89,14 @@ class AppsListAdapter extends ListAdapter<AppItem, AppsListAdapter.AppViewHolder
 		private final ImageView icon;
 		private final TextView name;
 
-		AppViewHolder(ListRowGridJarBinding binding, View.OnCreateContextMenuListener contextMenuListener) {
-			this(binding.getRoot(), binding.listTitle, binding.listImage, contextMenuListener);
+		AppViewHolder(ListRowGridJarBinding binding, AppsListFragment fragment) {
+			this(binding.getRoot(), binding.listTitle, binding.listImage, fragment);
 		}
 
 		AppViewHolder(View itemView,
 					  TextView listTitle,
 					  ImageView listImage,
-					  View.OnCreateContextMenuListener contextMenuListener) {
+					  AppsListFragment fragment) {
 			super(itemView);
 			icon = listImage;
 			name = listTitle;
@@ -105,10 +105,10 @@ class AppsListAdapter extends ListAdapter<AppItem, AppsListAdapter.AppViewHolder
 				AppsListAdapter adapter = (AppsListAdapter) getBindingAdapter();
 				if (adapter != null) {
 					AppItem item = adapter.getItem(getLayoutPosition());
-					Config.startApp(v.getContext(), item.getTitle(), item.getPathExt(), false);
+					fragment.checkReinstall(item);
 				}
 			});
-			itemView.setOnCreateContextMenuListener(contextMenuListener);
+			itemView.setOnCreateContextMenuListener(fragment);
 		}
 
 		void onBind(AppItem item) {
@@ -128,8 +128,8 @@ class AppsListAdapter extends ListAdapter<AppItem, AppsListAdapter.AppViewHolder
 		private final TextView author;
 		private final TextView version;
 
-		AppListViewHolder(ListRowJarBinding binding, View.OnCreateContextMenuListener contextMenuListener) {
-			super(binding.getRoot(), binding.listTitle, binding.listImage, contextMenuListener);
+		AppListViewHolder(ListRowJarBinding binding, AppsListFragment fragment) {
+			super(binding.getRoot(), binding.listTitle, binding.listImage, fragment);
 			author = binding.listAuthor;
 			version = binding.listVersion;
 		}

@@ -87,6 +87,7 @@ import ru.playsoftware.j2meloader.settings.SettingsActivity;
 import ru.playsoftware.j2meloader.util.AppUtils;
 import ru.playsoftware.j2meloader.util.LogUtils;
 import ru.woesss.j2me.installer.InstallerDialog;
+import ru.woesss.j2me.jar.Descriptor;
 
 public class AppsListFragment extends Fragment implements MenuProvider {
 
@@ -362,6 +363,41 @@ public class AppsListFragment extends Fragment implements MenuProvider {
 			sortVariant |= 0x80000000;
 		}
 		preferences.edit().putInt(PREF_APP_SORT, sortVariant).apply();
+	}
+
+	void checkReinstall(AppItem item) {
+		try {
+			File confFile = new File(item.getPathExt(), Config.MIDLET_MANIFEST_FILE);
+			if (!confFile.exists()) {
+				showReinstallDialog(item);
+				return;
+			}
+			Descriptor desc = new Descriptor(confFile, false);
+			String versionStr = desc.getAttrs().get("JL-Mod-Dex-Version");
+			int version = versionStr != null ? Integer.parseInt(versionStr) : 0;
+			if (version < Config.DEX_PATCHER_VERSION) {
+				showReinstallDialog(item);
+			} else {
+				Config.startApp(requireContext(), item.getTitle(), item.getPathExt(), false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			// Fallback to start app if error reading config
+			Config.startApp(requireContext(), item.getTitle(), item.getPathExt(), false);
+		}
+	}
+
+	private void showReinstallDialog(AppItem item) {
+		new AlertDialog.Builder(requireActivity())
+				.setTitle(R.string.reinstall_needed_title)
+				.setMessage(R.string.reinstall_needed_message)
+				.setPositiveButton(R.string.action_reinstall, (d, w) -> {
+					InstallerDialog.newInstance(item.getId()).show(getParentFragmentManager(), "installer");
+				})
+				.setNeutralButton(R.string.CANCEL_CMD, (d, w) -> {
+					Config.startApp(requireContext(), item.getTitle(), item.getPathExt(), false);
+				})
+				.show();
 	}
 
 	private void onDbUpdated(List<AppItem> items) {

@@ -259,5 +259,7 @@
     <string name="virtual_key_star" translatable="false">*</string>
     <string name="virtual_key_up" translatable="false">↑</string>
     <string name="warn_install_from_net">File will be downloaded from Internet</string>
+    <string name="reinstall_needed_title">Reinstall recommended</string>
+    <string name="reinstall_needed_message">This app/game was installed with an older version of the emulator. To enable the Speed Multiplier feature, you need to reinstall it. Save data will not be deleted.\n\nReinstall now?</string>
     <string name="warning">Warning!</string>
 </resources>

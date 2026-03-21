@@ -146,7 +146,7 @@ public abstract class Canvas extends Displayable {
 	private static Image offscreen;
 	private Image offscreenCopy;
 	private int onX, onY, onWidth, onHeight;
-	private long lastFrameTime = System.currentTimeMillis();
+	private long lastFrameTime = javax.microedition.util.Time.currentTimeMillis();
 	private Handler uiHandler;
 	private Overlay overlay;
 	private FpsCounter fpsCounter;
@@ -618,12 +618,12 @@ public abstract class Canvas extends Displayable {
 	private void limitFps() {
 		if (fpsLimit <= 0) return;
 		try {
-			long millis = (1000 / fpsLimit) - (System.currentTimeMillis() - lastFrameTime);
+			long millis = (1000 / fpsLimit) - (javax.microedition.util.Time.currentTimeMillis() - lastFrameTime);
 			if (millis > 0) Thread.sleep(millis);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		lastFrameTime = System.currentTimeMillis();
+		lastFrameTime = javax.microedition.util.Time.currentTimeMillis();
 	}
 
 	@SuppressLint("NewApi")

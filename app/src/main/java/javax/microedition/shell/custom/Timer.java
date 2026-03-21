@@ -219,7 +219,7 @@ public class Timer {
                         continue;
                     }
 
-                    long currentTime = System.currentTimeMillis();
+                    long currentTime = javax.microedition.util.Time.currentTimeMillis();
 
                     task = tasks.minimum();
                     long timeToSleep;
@@ -237,7 +237,12 @@ public class Timer {
                     if (timeToSleep > 0) {
                         // sleep!
                         try {
-                            this.wait(timeToSleep);
+                            float speed = javax.microedition.util.Time.getSpeed();
+                            if (speed <= 0) {
+                                this.wait(timeToSleep);
+                            } else {
+                                this.wait((long) (timeToSleep / speed));
+                            }
                         } catch (InterruptedException ignored) {
                         }
                         continue;
@@ -269,7 +274,7 @@ public class Timer {
                                 task.when = task.when + task.period;
                             } else {
                                 // task is scheduled at fixed delay
-                                task.when = System.currentTimeMillis()
+                                task.when = javax.microedition.util.Time.currentTimeMillis()
                                         + task.period;
                             }
 
@@ -439,7 +444,7 @@ public class Timer {
         if (when.getTime() < 0) {
             throw new IllegalArgumentException("when < 0: " + when.getTime());
         }
-        long delay = when.getTime() - System.currentTimeMillis();
+        long delay = when.getTime() - javax.microedition.util.Time.currentTimeMillis();
         scheduleImpl(task, delay < 0 ? 0 : delay, -1, false);
     }
 
@@ -505,7 +510,7 @@ public class Timer {
         if (period <= 0 || when.getTime() < 0) {
             throw new IllegalArgumentException();
         }
-        long delay = when.getTime() - System.currentTimeMillis();
+        long delay = when.getTime() - javax.microedition.util.Time.currentTimeMillis();
         scheduleImpl(task, delay < 0 ? 0 : delay, period, false);
     }
 
@@ -552,7 +557,7 @@ public class Timer {
         if (period <= 0 || when.getTime() < 0) {
             throw new IllegalArgumentException();
         }
-        long delay = when.getTime() - System.currentTimeMillis();
+        long delay = when.getTime() - javax.microedition.util.Time.currentTimeMillis();
         scheduleImpl(task, delay, period, true);
     }
 
@@ -565,7 +570,7 @@ public class Timer {
                 throw new IllegalStateException("Timer was canceled");
             }
 
-            long when = delay + System.currentTimeMillis();
+            long when = delay + javax.microedition.util.Time.currentTimeMillis();
 
             if (when < 0) {
                 throw new IllegalArgumentException("Illegal delay to start the TimerTask: " + when);

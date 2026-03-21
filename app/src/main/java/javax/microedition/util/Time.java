@@ -20,13 +20,19 @@ import android.util.Log;
 
 public class Time {
 	private static final String TAG = "EmulatorTime";
-	private static float speed = 1.0f;
-	private static long lastRealTime = System.currentTimeMillis();
-	private static long lastVirtualTime = lastRealTime;
+	private static volatile float speed = 1.0f;
+
+	// Anchor points for time virtualization
+	// realOriginNanos uses System.nanoTime() (monotonic, high precision)
+	private static long realOriginNanos = System.nanoTime();
+	// virtualOriginNanos is the "virtual" epoch in nanoseconds
+	private static long virtualOriginNanos = System.currentTimeMillis() * 1_000_000L;
 
 	public static synchronized void setSpeed(float s) {
-		lastVirtualTime = currentTimeMillis();
-		lastRealTime = System.currentTimeMillis();
+		long nowNanos = System.nanoTime();
+		// Catch up virtual origin to current time before changing speed scale
+		virtualOriginNanos = currentVirtualNanos(nowNanos);
+		realOriginNanos = nowNanos;
 		speed = s;
 		Log.d(TAG, "Speed multiplier set to: " + s);
 	}
@@ -35,20 +41,35 @@ public class Time {
 		return speed;
 	}
 
+	private static long currentVirtualNanos(long nowNanos) {
+		return virtualOriginNanos + (long) ((nowNanos - realOriginNanos) * speed);
+	}
+
 	public static synchronized long currentTimeMillis() {
-		long now = System.currentTimeMillis();
-		return lastVirtualTime + (long) ((now - lastRealTime) * speed);
+		return currentVirtualNanos(System.nanoTime()) / 1_000_000L;
 	}
 
 	public static synchronized long nanoTime() {
-		return currentTimeMillis() * 1_000_000L;
+		return currentVirtualNanos(System.nanoTime());
 	}
 
+	/**
+	 * Sleeps for a virtual duration.
+	 * Truncates sleep duration based on speed multiplier.
+	 */
 	public static void sleep(long ms) throws InterruptedException {
-		if (speed <= 0) {
+		float s = speed;
+		if (s <= 0) {
+			// Avoid division by zero or negative speed issues
 			Thread.sleep(ms);
 			return;
 		}
-		Thread.sleep((long) (ms / speed));
+		// Calculate precise sleep time
+		double targetMs = ms / (double) s;
+		long millis = (long) targetMs;
+		int nanos = (int) ((targetMs - millis) * 1_000_000);
+		
+		// Thread.sleep(0, 0) returns immediately, which is correct for high speed
+		Thread.sleep(millis, nanos);
 	}
 }

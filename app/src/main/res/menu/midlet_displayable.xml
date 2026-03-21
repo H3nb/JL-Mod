@@ -23,7 +23,9 @@
         <item
             android:id="@+id/action_limit_fps"
             android:title="@string/PREF_LIMIT_FPS" />
-
+        <item
+            android:id="@+id/action_speed_multiplier"
+            android:title="@string/speed_multiplier" />
         <item
             android:id="@+id/action_submenu_vk"
             android:title="@string/PREF_VIRTUAL_KEYBOARD_OPTIONS">

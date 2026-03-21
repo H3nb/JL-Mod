@@ -459,6 +459,8 @@ public class MicroActivity extends AppCompatActivity {
 			takeScreenshot();
 		} else if (id == R.id.action_limit_fps) {
 			showLimitFpsDialog();
+		} else if (id == R.id.action_speed_multiplier) {
+			showSpeedMultiplierDialog();
 		} else if (ContextHolder.getVk() != null) {
 			// Handled only when virtual keyboard is enabled
 			handleVkOptions(id);
@@ -635,6 +637,29 @@ public class MicroActivity extends AppCompatActivity {
 				})
 				.setNegativeButton(android.R.string.cancel, null)
 				.setNeutralButton(R.string.reset, ((d, which) -> Canvas.setLimitFps(-1)))
+				.show();
+	}
+
+	private void showSpeedMultiplierDialog() {
+		TextInputLayout inputLayout = DialogInputBinding.inflate(getLayoutInflater()).getRoot();
+		EditText editText = Objects.requireNonNull(inputLayout.getEditText());
+		editText.setHint("1.0");
+		editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+		editText.setText(String.valueOf(javax.microedition.util.Time.getSpeed()));
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.speed_multiplier)
+				.setView(inputLayout)
+				.setPositiveButton(android.R.string.ok, (d, w) -> {
+					Editable text = editText.getText();
+					float speed = 1.0f;
+					try {
+						speed = TextUtils.isEmpty(text) ? 1.0f : Float.parseFloat(text.toString().trim());
+					} catch (NumberFormatException ignored) {
+					}
+					javax.microedition.util.Time.setSpeed(speed);
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.setNeutralButton(R.string.reset, ((d, which) -> javax.microedition.util.Time.setSpeed(1.0f)))
 				.show();
 	}
 

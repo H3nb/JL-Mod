@@ -57,4 +57,6 @@ public interface Player extends Controllable {
 	void removePlayerListener(PlayerListener playerListener);
 
 	String getContentType();
+
+	void updateSpeed(float speed);
 }

@@ -283,7 +283,7 @@ public class RecordStoreImpl extends RecordStore {
 		synchronized (records) {
 			records.put(nextRecordID, recordData);
 			version++;
-			lastModified = System.currentTimeMillis();
+			lastModified = javax.microedition.util.Time.currentTimeMillis();
 			lastRecordId = nextRecordID;
 		}
 
@@ -306,7 +306,7 @@ public class RecordStoreImpl extends RecordStore {
 				throw new InvalidRecordIDException();
 			}
 			version++;
-			lastModified = System.currentTimeMillis();
+			lastModified = javax.microedition.util.Time.currentTimeMillis();
 		}
 
 		recordStoreManager.deleteRecord(this, recordId);
@@ -385,7 +385,7 @@ public class RecordStoreImpl extends RecordStore {
 			}
 			records.put(recordId, recordData);
 			version++;
-			lastModified = System.currentTimeMillis();
+			lastModified = javax.microedition.util.Time.currentTimeMillis();
 		}
 
 		recordStoreManager.saveRecord(this, recordId);
@@ -408,7 +408,7 @@ public class RecordStoreImpl extends RecordStore {
 	}
 
 	private void fireRecordListener(int type, int recordId) {
-		long timestamp = System.currentTimeMillis();
+		long timestamp = javax.microedition.util.Time.currentTimeMillis();
 
 		if (recordListeners != null) {
 			for (Enumeration<RecordListener> e = recordListeners.elements(); e.hasMoreElements(); ) {

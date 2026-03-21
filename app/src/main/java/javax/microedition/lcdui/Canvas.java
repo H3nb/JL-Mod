@@ -619,7 +619,7 @@ public abstract class Canvas extends Displayable {
 		if (fpsLimit <= 0) return;
 		try {
 			long millis = (1000 / fpsLimit) - (javax.microedition.util.Time.currentTimeMillis() - lastFrameTime);
-			if (millis > 0) Thread.sleep(millis);
+			if (millis > 0) javax.microedition.util.Time.sleep(millis);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

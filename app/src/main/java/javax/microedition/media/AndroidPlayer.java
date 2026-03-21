@@ -26,11 +26,25 @@ public class AndroidPlayer extends MediaPlayer {
 	private float leftVolume, rightVolume;
 	private int timePos;
 	private boolean looping;
+	private float speed = 1.0f;
 
 	public AndroidPlayer() {
 		super();
 		this.leftVolume = 1.0f;
 		this.rightVolume = 1.0f;
+	}
+
+	public void updateSpeed(float speed) {
+		this.speed = speed;
+		if (loaded && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+			try {
+				if (isPlaying() || speed != 1.0f) {
+					setPlaybackParams(getPlaybackParams().setSpeed(speed));
+				}
+			} catch (IllegalStateException | IllegalArgumentException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
@@ -104,6 +118,9 @@ public class AndroidPlayer extends MediaPlayer {
 				super.setVolume(leftVolume, rightVolume);
 				super.setLooping(looping);
 				super.seekTo(timePos);
+				if (speed != 1.0f) {
+					updateSpeed(speed);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

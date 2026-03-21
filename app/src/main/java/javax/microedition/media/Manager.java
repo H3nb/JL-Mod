@@ -23,8 +23,10 @@ import android.webkit.MimeTypeMap;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.microedition.io.Connector;
@@ -43,21 +45,26 @@ public class Manager {
 	private static final String RESOURCE_LOCATOR = "resource://";
 	private static final String FILE_LOCATOR = "file://";
 	private static final String CAPTURE_AUDIO_LOCATOR = "capture://audio";
-	private static final TimeBase DEFAULT_TIMEBASE = () -> System.nanoTime() / 1000L;
+	private static final TimeBase DEFAULT_TIMEBASE = () -> javax.microedition.util.Time.nanoTime() / 1000L;
 	private static final List<Plugin> PLUGINS = new ArrayList<>();
+	private static final List<WeakReference<Player>> PLAYERS = new ArrayList<>();
 
 	public static Player createPlayer(String locator) throws IOException, MediaException {
 		if (locator == null) {
 			throw new IllegalArgumentException();
 		}
+		Player player;
 		if (MIDI_DEVICE_LOCATOR.equals(locator) || TONE_DEVICE_LOCATOR.equals(locator)) {
+			player = null;
 			for (Plugin plugin : PLUGINS) {
-				Player player = plugin.createPlayer(locator);
+				player = plugin.createPlayer(locator);
 				if (player != null) {
-					return player;
+					break;
 				}
 			}
-			return new MicroPlayer(locator);
+			if (player == null) {
+				player = new MicroPlayer(locator);
+			}
 		} else if (locator.startsWith(FILE_LOCATOR) || locator.startsWith(RESOURCE_LOCATOR)) {
 			InputStream stream = Connector.openInputStream(locator);
 			String extension = locator.substring(locator.lastIndexOf('.') + 1);
@@ -65,16 +72,19 @@ public class Manager {
 			return createPlayer(stream, type);
 		} else if (locator.startsWith(CAPTURE_AUDIO_LOCATOR) &&
 				ContextHolder.requestPermission(Manifest.permission.RECORD_AUDIO)) {
-			return new RecordPlayer();
+			player = new RecordPlayer();
 		} else {
-			return new BasePlayer();
+			player = new BasePlayer();
 		}
+		addPlayer(player);
+		return player;
 	}
 
 	public static Player createPlayer(DataSource source) throws IOException, MediaException {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
+		Player player;
 		String type = source.getContentType();
 		String[] supportedTypes = getSupportedContentTypes(null);
 		if (type != null && Arrays.asList(supportedTypes).contains(type.toLowerCase())) {
@@ -86,10 +96,12 @@ public class Manager {
 			SourceStream sourceStream = sourceStreams[0];
 			InputStream stream = new InternalSourceStream(sourceStream);
 			InternalDataSource datasource = new InternalDataSource(stream, type);
-			return new MicroPlayer(datasource);
+			player = new MicroPlayer(datasource);
 		} else {
-			return new BasePlayer();
+			player = new BasePlayer();
 		}
+		addPlayer(player);
+		return player;
 	}
 
 	public static Player createPlayer(final InputStream stream, String type)
@@ -97,18 +109,43 @@ public class Manager {
 		if (stream == null) {
 			throw new IllegalArgumentException();
 		}
+		Player player = null;
 		InternalDataSource datasource = new InternalDataSource(stream, type);
 		for (Plugin plugin : PLUGINS) {
-			Player player = plugin.createPlayer(datasource);
+			player = plugin.createPlayer(datasource);
 			if (player != null) {
-				return player;
+				break;
 			}
 		}
-		String[] supportedTypes = getSupportedContentTypes(null);
-		if (type != null && Arrays.asList(supportedTypes).contains(type.toLowerCase())) {
-			return new MicroPlayer(datasource);
-		} else {
-			return new BasePlayer();
+		if (player == null) {
+			String[] supportedTypes = getSupportedContentTypes(null);
+			if (type != null && Arrays.asList(supportedTypes).contains(type.toLowerCase())) {
+				player = new MicroPlayer(datasource);
+			} else {
+				player = new BasePlayer();
+			}
+		}
+		addPlayer(player);
+		return player;
+	}
+
+	private static void addPlayer(Player player) {
+		synchronized (PLAYERS) {
+			PLAYERS.add(new WeakReference<>(player));
+		}
+	}
+
+	public static void updateRates(float speed) {
+		synchronized (PLAYERS) {
+			Iterator<WeakReference<Player>> iterator = PLAYERS.iterator();
+			while (iterator.hasNext()) {
+				Player player = iterator.next().get();
+				if (player == null) {
+					iterator.remove();
+				} else if (player instanceof MicroPlayer) {
+					((MicroPlayer) player).updateSpeed(speed);
+				}
+			}
 		}
 	}
 

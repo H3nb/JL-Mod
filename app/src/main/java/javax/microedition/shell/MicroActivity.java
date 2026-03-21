@@ -657,9 +657,13 @@ public class MicroActivity extends AppCompatActivity {
 					} catch (NumberFormatException ignored) {
 					}
 					javax.microedition.util.Time.setSpeed(speed);
+					javax.microedition.media.Manager.updateRates(speed);
 				})
 				.setNegativeButton(android.R.string.cancel, null)
-				.setNeutralButton(R.string.reset, ((d, which) -> javax.microedition.util.Time.setSpeed(1.0f)))
+				.setNeutralButton(R.string.reset, ((d, which) -> {
+					javax.microedition.util.Time.setSpeed(1.0f);
+					javax.microedition.media.Manager.updateRates(1.0f);
+				}))
 				.show();
 	}
 

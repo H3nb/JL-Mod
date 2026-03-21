@@ -42,7 +42,7 @@ public class Time {
 	}
 
 	private static long currentVirtualNanos(long nowNanos) {
-		return virtualOriginNanos + (long) ((nowNanos - realOriginNanos) * speed);
+		return virtualOriginNanos + (long) ((nowNanos - realOriginNanos) * (double) speed);
 	}
 
 	public static synchronized long currentTimeMillis() {

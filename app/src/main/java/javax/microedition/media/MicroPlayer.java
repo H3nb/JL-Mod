@@ -183,6 +183,9 @@ class MicroPlayer extends BasePlayer implements MediaPlayer.OnCompletionListener
 		prefetch();
 
 		if (state == PREFETCHED) {
+			if (player instanceof AndroidPlayer) {
+				((AndroidPlayer) player).updateSpeed(javax.microedition.util.Time.getSpeed());
+			}
 			player.start();
 
 			state = STARTED;
@@ -295,6 +298,13 @@ class MicroPlayer extends BasePlayer implements MediaPlayer.OnCompletionListener
 	@Override
 	public int getState() {
 		return state;
+	}
+
+	@Override
+	public void updateSpeed(float speed) {
+		if (player instanceof AndroidPlayer) {
+			((AndroidPlayer) player).updateSpeed(speed);
+		}
 	}
 
 	@Override

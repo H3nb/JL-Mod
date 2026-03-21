@@ -208,6 +208,11 @@ class SynthPlayer extends BasePlayer implements VolumeControl, PanControl, ToneC
 		return state;
 	}
 
+	public void updateSpeed(float speed) {
+		// MIDI tempo scaling is not yet supported by the native library
+		// but we keep this for consistency with MicroPlayer
+	}
+
 	@Override
 	public String getContentType() {
 		checkRealized();

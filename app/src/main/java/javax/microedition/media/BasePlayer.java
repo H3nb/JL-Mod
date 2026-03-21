@@ -94,6 +94,10 @@ public class BasePlayer implements Player {
 	}
 
 	@Override
+	public void updateSpeed(float speed) {
+	}
+
+	@Override
 	public Control getControl(String controlType) {
 		return null;
 	}
